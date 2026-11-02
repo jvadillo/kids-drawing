@@ -1,0 +1,57 @@
+/* Textos de la interfaz (castellano, euskera, inglés). Los nombres de los dibujos están en drawings.js */
+window.I18N = {
+  es: {
+    title: '¡A dibujar!',
+    choose: 'Elegir dibujo',
+    random: '¡Sorpresa!',
+    chooseTitle: '¿Qué quieres dibujar?',
+    back: 'Atrás',
+    home: 'Inicio',
+    prev: 'Paso anterior',
+    next: 'Siguiente paso',
+    finish: '¡Terminado!',
+    step: 'Paso',
+    goal: 'Así quedará',
+    doneTitle: '¡Muy bien!',
+    doneSub: '¡Ahora coloréalo!',
+    again: 'Otra vez',
+    another: 'Otro dibujo',
+    language: 'Idioma'
+  },
+  eu: {
+    title: 'Marraztu dezagun!',
+    choose: 'Marrazkia aukeratu',
+    random: 'Ezustekoa!',
+    chooseTitle: 'Zer marraztu nahi duzu?',
+    back: 'Atzera',
+    home: 'Hasiera',
+    prev: 'Aurreko urratsa',
+    next: 'Hurrengo urratsa',
+    finish: 'Bukatuta!',
+    step: 'Urratsa',
+    goal: 'Honela geratuko da',
+    doneTitle: 'Oso ondo!',
+    doneSub: 'Orain koloreztatu!',
+    again: 'Berriro',
+    another: 'Beste marrazki bat',
+    language: 'Hizkuntza'
+  },
+  en: {
+    title: "Let's draw!",
+    choose: 'Choose a drawing',
+    random: 'Surprise me!',
+    chooseTitle: 'What do you want to draw?',
+    back: 'Back',
+    home: 'Home',
+    prev: 'Previous step',
+    next: 'Next step',
+    finish: 'Finished!',
+    step: 'Step',
+    goal: 'This is the goal',
+    doneTitle: 'Well done!',
+    doneSub: 'Now colour it in!',
+    again: 'Again',
+    another: 'Another drawing',
+    language: 'Language'
+  }
+};

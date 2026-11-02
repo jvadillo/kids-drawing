@@ -1,0 +1,24 @@
+/* Estilos de los dibujos SVG (compartidos por la app y la hoja de previsualización) */
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  color: #2b2738;
+}
+.art .art-root { stroke: currentColor; }
+
+/* Paso actual resaltado (modo pasos) */
+.art .current { stroke: #ff3d81; color: #ff3d81; }
+
+/* Rellenos con el color del trazo: ojos, narices... */
+.art .ink { fill: currentColor; }
+
+/* En modo pasos los rellenos son "papel" blanco: solo se ven líneas */
+.art--steps [fill]:not([fill="none"]) { fill: #fff; }
+.art--steps .st:not(.current) { color: #2b2738; }
+
+/* Líneas de ayuda */
+.art .guide { stroke: #b9b2cc; stroke-dasharray: 3 14; stroke-width: 4; }
+.art .current .guide { stroke: #ff3d81; }
+.art--final .guide { display: none; }
