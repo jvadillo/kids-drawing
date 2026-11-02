@@ -1,8 +1,12 @@
 /*
  * ¡A dibujar! — estilos de la interfaz.
  * Compatibilidad: navegadores móviles actuales y TV LG webOS 5+ (Chromium 68).
- * Por eso se evitan: gap en flexbox, aspect-ratio, clamp()/min()/max(), inset, :focus-visible.
+ * Por eso se evitan: CSS Grid (webOS 4 y anteriores no lo soportan), gap en flexbox, aspect-ratio, clamp()/min()/max(), inset, :focus-visible.
  */
+/* Tipo de letra incluido en la app para que se vea igual en todos los dispositivos (TV incluida) */
+@font-face { font-family: "Nunito"; font-weight: 800; font-style: normal; src: url("../fonts/nunito-800.woff2") format("woff2"); }
+@font-face { font-family: "Nunito"; font-weight: 900; font-style: normal; src: url("../fonts/nunito-900.woff2") format("woff2"); }
+
 :root {
   --bg: #fff4df;
   --ink: #2b2738;
@@ -178,9 +182,8 @@ body.using-keys button:focus {
 .title-icon { width: 2.8rem; height: 2.8rem; margin-right: 0.6rem; color: var(--hl); stroke-width: 2.4; }
 
 .home-actions {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 1.2rem;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: 26rem;
   padding: 0 0.5rem 1rem;
@@ -196,6 +199,7 @@ body.using-keys button:focus {
   border-radius: 2rem;
   box-shadow: 0 0.5rem 0 var(--ink);
 }
+.big-btn + .big-btn { margin-top: 1.2rem; }
 .big-btn:active { transform: translateY(0.45rem); }
 .big-icon { width: 3.6rem; height: 3.6rem; margin-right: 1rem; flex: 0 0 auto; stroke-width: 2.4; }
 .btn-choose { background: var(--sky); }
@@ -209,8 +213,9 @@ body.using-keys button:focus {
 }
 
 @media (orientation: landscape) {
-  .home-actions { grid-template-columns: 1fr 1fr; max-width: 44rem; }
-  .big-btn { flex-direction: column; height: 10rem; font-size: 1.6rem; }
+  .home-actions { flex-direction: row; max-width: 44rem; }
+  .big-btn { flex: 1 1 0; min-width: 0; flex-direction: column; height: 10rem; font-size: 1.6rem; }
+  .big-btn + .big-btn { margin-top: 0; margin-left: 1.2rem; }
   .big-icon { margin: 0 0 0.6rem; }
 }
 @media (orientation: landscape) and (max-height: 520px) {
@@ -246,12 +251,15 @@ body.using-keys button:focus {
   margin: 0 auto;
   padding: 0;
   max-width: 80rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
-  grid-gap: 1.1rem;
+  display: flex;
+  flex-wrap: wrap;
 }
-.tv .cards { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.cards > li { min-width: 0; }
+.cards > li { box-sizing: border-box; width: 50%; padding: 0.55rem; min-width: 0; }
+@media (min-width: 480px) { .cards > li { width: 33.3333%; } }
+@media (min-width: 700px) { .cards > li { width: 25%; } }
+@media (min-width: 1000px) { .cards > li { width: 20%; } }
+@media (min-width: 1200px) { .cards > li { width: 16.6666%; } }
+.tv .cards > li { width: 16.6666%; }
 .card-btn {
   display: block;
   width: 100%;
@@ -317,15 +325,13 @@ body.using-keys button:focus {
 .stage {
   flex: 1 1 auto;
   min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr auto;
-  grid-template-areas: "paper paper" "prev next";
-  grid-gap: 1rem;
-  padding: 0.4rem 1rem 1.2rem;
+  position: relative;
+}
+.stage .paper {
+  position: absolute;
+  top: 0.4rem; left: 1rem; right: 1rem; bottom: 7.4rem;
 }
 .paper {
-  grid-area: paper;
   position: relative;
   min-height: 0;
   background: var(--paper);
@@ -363,8 +369,9 @@ body.using-keys button:focus {
   box-shadow: 0 0.45rem 0 var(--ink);
 }
 .nav-btn svg { width: 3rem; height: 3rem; stroke-width: 3.4; }
-.nav-btn.prev { grid-area: prev; background: var(--paper); }
-.nav-btn.next { grid-area: next; background: var(--grass); }
+.stage .nav-btn { position: absolute; bottom: 1.2rem; width: 45%; }
+.nav-btn.prev { left: 1rem; background: var(--paper); }
+.nav-btn.next { right: 1rem; background: var(--grass); }
 .nav-btn[disabled] { opacity: 0.3; box-shadow: none; transform: translateY(0.35rem); cursor: default; }
 .nav-btn .ic-check { display: none; }
 .nav-btn.is-finish { background: var(--sun); animation: nudge 1.6s ease-in-out infinite; }
@@ -373,13 +380,11 @@ body.using-keys button:focus {
 @keyframes nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 
 @media (orientation: landscape) {
-  .stage {
-    grid-template-columns: auto 1fr auto;
-    grid-template-rows: 1fr;
-    grid-template-areas: "prev paper next";
-    padding: 0.2rem 1.2rem 1.2rem;
-  }
-  .nav-btn { width: 6.5rem; height: 11rem; align-self: center; }
+  .stage { display: flex; flex-direction: row; align-items: stretch; padding: 0.2rem 1.2rem 1.2rem; }
+  .stage .paper { position: relative; top: auto; left: auto; right: auto; bottom: auto; flex: 1 1 auto; min-width: 0; }
+  .stage .nav-btn { position: static; bottom: auto; flex: 0 0 auto; align-self: center; width: 6.5rem; height: 11rem; }
+  .nav-btn.prev { margin-right: 1.2rem; }
+  .nav-btn.next { margin-left: 1.2rem; }
   .nav-btn svg { width: 3.4rem; height: 3.4rem; }
 }
 @media (orientation: landscape) and (max-height: 520px) {
@@ -387,7 +392,7 @@ body.using-keys button:focus {
   .icon-btn { width: 2.8rem; height: 2.8rem; }
   .goal { width: 3rem; height: 3rem; }
   .progress-name { font-size: 1rem; margin-bottom: 0.15rem; }
-  .nav-btn { width: 5rem; height: 8rem; }
+  .stage .nav-btn { width: 5rem; height: 8rem; }
   .step-badge { font-size: 1.2rem; }
 }
 
@@ -419,12 +424,13 @@ body.using-keys button:focus {
 }
 .done-sub svg { width: 2rem; height: 2rem; margin-right: 0.5rem; color: var(--hl); }
 .done-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
   width: 100%;
   max-width: 30rem;
 }
+.done-actions .act-btn { width: 48%; margin-bottom: 1.1rem; }
 .act-btn {
   display: flex;
   align-items: center;
@@ -450,14 +456,15 @@ body.using-keys button:focus {
   #screen-done { flex-direction: row; }
   .done-paper { width: 58vh; height: 58vh; max-width: none; max-height: none; }
   .done-title { font-size: 2.4rem; margin-bottom: 0.5rem; }
-  .done-actions { grid-template-columns: 1fr; width: 17rem; margin-left: 3rem; }
+  .done-actions { flex-direction: column; flex-wrap: nowrap; width: 17rem; margin-left: 3rem; }
+  .done-actions .act-btn { width: 100%; margin-bottom: 1.1rem; }
 }
 @media (orientation: landscape) and (max-height: 520px) {
   .done-paper { width: 52vh; height: 52vh; }
   .done-title { font-size: 1.8rem; }
   .done-sub { font-size: 1.1rem; margin: 0.6rem 0 0; }
   .act-btn { min-height: 3rem; }
-  .done-actions { grid-gap: 0.6rem; }
+  .done-actions .act-btn { margin-bottom: 0.8rem; }
 }
 
 /* Confeti */

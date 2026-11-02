@@ -19,7 +19,7 @@ const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 const OUT = path.join(DIST, 'webos', 'app');
 
-const APP_FILES = ['index.html', 'manifest.webmanifest', 'css', 'js', 'img'];
+const APP_FILES = ['index.html', 'manifest.webmanifest', 'css', 'js', 'img', 'fonts'];
 const WEBOS_FILES = ['appinfo.json', 'icon.png', 'largeIcon.png', 'splash.png'];
 
 function copy(src, dst) {

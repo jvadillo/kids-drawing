@@ -21,7 +21,7 @@ window.I18N = {
   eu: {
     title: 'Marraztu dezagun!',
     choose: 'Marrazkia aukeratu',
-    random: 'Ezustekoa!',
+    random: 'Edozein marrazki',
     chooseTitle: 'Zer marraztu nahi duzu?',
     back: 'Atzera',
     home: 'Hasiera',
@@ -30,9 +30,9 @@ window.I18N = {
     finish: 'Bukatuta!',
     step: 'Urratsa',
     goal: 'Honela geratuko da',
-    doneTitle: 'Oso ondo!',
+    doneTitle: 'Lortu duzu!',
     doneSub: 'Orain koloreztatu!',
-    again: 'Berriro',
+    again: 'Berdina errepikatu',
     another: 'Beste marrazki bat',
     language: 'Hizkuntza'
   },

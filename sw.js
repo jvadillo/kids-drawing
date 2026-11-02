@@ -1,6 +1,6 @@
 /* Service worker: guarda la app en caché para que funcione sin conexión.
    Cambia CACHE al publicar una versión nueva para forzar la actualización. */
-var CACHE = 'a-dibujar-v2';
+var CACHE = 'a-dibujar-v3';
 var FILES = [
   './',
   'index.html',
@@ -11,6 +11,8 @@ var FILES = [
   'js/drawings.js',
   'js/art.js',
   'js/app.js',
+  'fonts/nunito-800.woff2',
+  'fonts/nunito-900.woff2',
   'img/icon.svg',
   'img/icon-192.png',
   'img/icon-512.png',

@@ -298,7 +298,7 @@
   var PG = fill('#f9b0cd'), PG2 = fill('#f48fb1');
   var pig = {
     id: 'pig', color: '#ffd6e6',
-    name: { es: 'Cerdito', eu: 'Txerritxoa', en: 'Piglet' },
+    name: { es: 'Cerdito', eu: 'Txerria', en: 'Piglet' },
     steps: [
       circle(100, 168, 56, PG),
       { b: ellipse(215, 210, 118, 80, PG) },
@@ -316,7 +316,7 @@
   var rocketFin = path('M152 230 Q102 258 104 325 L152 292', RR);
   var rocket = {
     id: 'rocket', color: '#ffd0d0',
-    name: { es: 'Cohete', eu: 'Suziria', en: 'Rocket' },
+    name: { es: 'Cohete', eu: 'Kohetea', en: 'Rocket' },
     steps: [
       path('M200 40 Q250 78 252 122 L148 122 Q150 78 200 40Z', RR),
       { b: path('M150 110 L150 292 L250 292 L250 110', RW) },
@@ -401,7 +401,7 @@
   function hexAt(y) { return path('M185 ' + (y - 20) + ' L215 ' + (y - 20) + ' L228 ' + y + ' L215 ' + (y + 20) + ' L185 ' + (y + 20) + ' L172 ' + y + 'Z'); }
   var turtle = {
     id: 'turtle', color: '#d4efcc',
-    name: { es: 'Tortuga marina', eu: 'Itsas dortoka', en: 'Sea turtle' },
+    name: { es: 'Tortuga', eu: 'Dortoka', en: 'Turtle' },
     steps: [
       path(shellD, TS),
       { b: path('M176 120 Q174 58 200 54 Q226 58 224 120', TK) },
@@ -426,7 +426,7 @@
   var bearArm = ellipse(140, 246, 19, 42, BR + ' transform="rotate(35 140 246)"');
   var bear = {
     id: 'bear', color: '#f3dcc2',
-    name: { es: 'Osito', eu: 'Hartzatxoa', en: 'Teddy bear' },
+    name: { es: 'Osito', eu: 'Hartza', en: 'Teddy bear' },
     steps: [
       circle(200, 130, 70, BR) + ellipse(200, 152, 32, 23, BT),
       ellipse(200, 141, 10, 7, INK) + path('M200 148 V158 M186 156 Q193 166 200 158 Q207 166 214 156') +
@@ -702,7 +702,7 @@
   var XG = fill('#4caf50');
   var xmastree = {
     id: 'xmastree', color: '#d4efcc',
-    name: { es: 'Árbol de Navidad', eu: 'Gabonetako zuhaitza', en: 'Christmas tree' },
+    name: { es: 'Árbol de Navidad', eu: 'Zuhaitza', en: 'Christmas tree' },
     steps: [
       path('M140 140 L200 62 L260 140 Q200 156 140 140Z', XG),
       { b: path('M110 222 L200 112 L290 222 Q200 240 110 222Z', XG) },
@@ -745,7 +745,7 @@
   var palmTop = [236, 124];
   var island = {
     id: 'island', color: '#cdeefc',
-    name: { es: 'Isla con palmera', eu: 'Palmondodun uhartea', en: 'Palm island' },
+    name: { es: 'Isla', eu: 'Uhartea', en: 'Island' },
     steps: [
       path('M50 322 Q120 262 200 264 Q290 264 350 322Z', fill('#f5d491')),
       { b: path(palmTrunk.d, fill('#b07a45')) + palmRings },
