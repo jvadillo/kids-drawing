@@ -17,20 +17,32 @@ ni se guarda el progreso. Lo único que se guarda en el dispositivo es el idioma
 
 Idiomas: castellano, euskera e inglés (botones ES / EU / EN en el inicio).
 
-## Dibujos incluidos (40)
+## Dibujos incluidos (70)
 
 Cada dibujo tiene entre 4 y 8 pasos.
 
-- **Animales:** jirafa, perro, gato, conejo, cerdito, mono, osito, leopardo, rinoceronte, dinosaurio,
-  pingüino, búho, pez, delfín, pulpo, cangrejo, estrella de mar, tiburón, tortuga marina, serpiente,
-  caracol, abeja, mariquita, mariposa, araña y murciélago.
-- **Naturaleza:** flor, isla con palmera, arcoíris y árbol de Navidad.
-- **Objetos y fantasía:** casa, castillo, coche, moto, barco de vela, cohete, robot, fantasma, duende y helado.
+- **Personajes de dibujos animados:** Peppa Pig, George Pig, Bluey, Bingo, Hello Kitty, Pikachu, Pocoyó,
+  Pandy Paws y Cakey (de *La casa de muñecas de Gabby*).
+- **Animales:** jirafa, perro, gato, conejo, cerdito, mono, osito, león, elefante, panda, leopardo, rinoceronte,
+  dinosaurio, pingüino, búho, rana, pez, delfín, pulpo, cangrejo, estrella de mar, tiburón, tortuga marina,
+  serpiente, caracol, abeja, mariquita, mariposa, araña y murciélago.
+- **Naturaleza:** flor, isla con palmera y arcoíris.
+- **Fiestas:** árbol de Navidad, muñeco de nieve, Papá Noel, Olentzero, Mari Domingi, reno, calabaza de
+  Halloween y tarta de cumpleaños.
+- **Fantasía:** unicornio, dragón, princesa, sirena, fantasma y duende.
+- **Objetos y transportes:** casa, castillo, montaña rusa, coche, camión de bomberos, tren, moto, barco de vela,
+  avión, globo aerostático, cohete, astronauta, robot y helado.
 
 Los 18 primeros que se hicieron están **redibujados en SVG (vectorial)** siguiendo los pasos de las fichas
-de `examples/`; los demás son diseños propios con el mismo estilo y dificultad. Ninguno reutiliza las imágenes
+de `examples/`; los demás son diseños propios con el mismo estilo y dificultad.
+Los 30 últimos (personajes, fiestas, fantasía y transportes) están pensados para **no tener que borrar**: primero se
+dibuja lo que queda delante y lo que va detrás se añade después, parando en las líneas que ya hay. Ninguno reutiliza las imágenes
 originales, que tienen copyright de Twinkl. La carpeta `examples/` es solo material de referencia:
 **no la publiques** junto con la app.
+
+Los personajes de dibujos animados (Peppa Pig, Bluey, Hello Kitty, Pikachu, Pocoyó, Gabby...) son marcas registradas
+de sus propietarios. Aquí aparecen como dibujos simplificados para aprender a dibujar en un uso educativo; si la app
+se fuera a distribuir públicamente (por ejemplo en la LG Content Store), habría que quitarlos.
 
 ## Probar en local
 
@@ -131,14 +143,17 @@ Después se añade a la lista `DRAWINGS` del final del fichero.
 - `fill="#color"`: color en el dibujo final coloreado. En los pasos se ve como papel blanco.
 - `class="ink"`: relleno del color de la línea (ojos, narices...).
 - `class="guide"`: línea de ayuda discontinua que desaparece en el dibujo final.
-- Capas `{ bbb, bb, b, f }`: lo más al fondo / muy detrás / detrás / delante (por defecto). Sirven para que,
-  por ejemplo, las patas queden detrás del cuerpo sin tener que calcular dónde se cruzan.
+- Capas `{ bbbbb, bbbb, bbb, bb, b, f }`: cuantas más `b`, más al fondo; `f` es delante (por defecto). Sirven para que,
+  por ejemplo, las patas queden detrás del cuerpo sin tener que calcular dónde se cruzan. Así cada paso nuevo se
+  puede dibujar sin borrar nada: lo que se añade va detrás de lo que ya está dibujado.
 - Hay utilidades para formas comunes: `tube()` (tentáculos, colas, troncos), `blob()` (manchas), `roundStar()`,
-  `leaf()` (hojas), `band()`/`arcLine()` (arcos), `spiral()`, `waves()` (olas), `rect()` y
-  `mirror()` (repetir algo en espejo para el lado derecho).
+  `leaf()` (hojas), `band()`/`arcLine()` (arcos), `spiral()`, `waves()` (olas), `rect()`,
+  `scallop()` (melenas y bordes de bultitos), `ellipseBand()` (fajas y cinturones), `flake()` (copos), `star5()`
+  (estrellas) y `mirror()` (repetir algo en espejo para el lado derecho).
 - El orden de la galería es el de la lista `DRAWINGS`.
 
-Revisa el resultado con `tools/preview.html` (o `tools/preview.html?ids=sun` para ver solo uno).
+Revisa el resultado con `tools/preview.html` (o `tools/preview.html?ids=sun` para ver solo uno; añade `&size=300`
+para verlo más grande).
 
 ## Estructura
 

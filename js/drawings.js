@@ -2,8 +2,8 @@
  * Dibujos paso a paso.
  *
  * Cada dibujo tiene una lista de pasos. Cada paso es un fragmento SVG (viewBox 0 0 400 400)
- * o un objeto con capas { bbb: '...', bb: '...', b: '...', f: '...' }:
- *   bbb = lo más al fondo, bb = muy al fondo, b = detrás, f = delante (por defecto, si el paso es un string).
+ * o un objeto con capas { bbbbb, bbbb, bbb, bb, b, f }: cuantas más b, más al fondo;
+ *   f = delante (por defecto, si el paso es un string).
  * Las capas permiten que una forma quede "detrás" de otra (p. ej. las patas detrás del cuerpo).
  *
  * Convenciones dentro del SVG:
@@ -921,12 +921,662 @@
     ]
   };
 
-  /* Orden de la galería: animales, naturaleza y objetos/fantasía */
+  /* ======================================================================= */
+  /*      DIBUJOS NUEVOS: fiestas, fantasía, transportes y personajes        */
+  /*  Pensados para no tener que borrar: lo de delante se dibuja primero y   */
+  /*  lo que va detrás se añade en capas de fondo (b, bb, bbb, bbbb, bbbbb).  */
+  /* ======================================================================= */
+
+  /* Círculo con borde de bultitos (melenas, nubes, lana) */
+  function scallop(cx, cy, r, n, bump, rot) {
+    var d = '', i;
+    rot = rot || 0;
+    for (i = 0; i <= n; i++) {
+      var a = rot + i * 2 * Math.PI / n, p = [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+      if (i === 0) { d = 'M' + pt(p); continue; }
+      var m = rot + (i - 0.5) * 2 * Math.PI / n, c = [cx + Math.cos(m) * (r + bump * 2), cy + Math.sin(m) * (r + bump * 2)];
+      d += ' Q' + pt(c) + ' ' + pt(p);
+    }
+    return d + 'Z';
+  }
+
+  /* Franja horizontal de una elipse entre y1 e y2 (cinturones, fajas, rayas) */
+  function ellipseBand(cx, cy, rx, ry, y1, y2) {
+    function hw(y) { var t = (y - cy) / ry; return rx * Math.sqrt(Math.max(0, 1 - t * t)); }
+    var a = hw(y1), b = hw(y2);
+    return 'M' + pt([cx - a, y1]) + ' A' + rx + ' ' + ry + ' 0 0 0 ' + pt([cx - b, y2]) +
+      ' L' + pt([cx + b, y2]) + ' A' + rx + ' ' + ry + ' 0 0 0 ' + pt([cx + a, y1]) + 'Z';
+  }
+
+  /* Copo de nieve pequeño */
+  function flake(x, y, r) {
+    var d = '';
+    for (var i = 0; i < 3; i++) {
+      var p = polar(x, y, r, 90 + i * 60), q = polar(x, y, r, 270 + i * 60);
+      d += 'M' + pt(p) + ' L' + pt(q) + ' ';
+    }
+    return path(d);
+  }
+  function star5(x, y, r, c) { return path(roundStar(x, y, r, r * 0.45, 5, 0.3, -Math.PI / 2), fill(c || '#ffd23f')); }
+
+  /* ---------- Unicornio ---------- */
+  var UW = fill('#fbf7ff'), UM = fill('#c9a0ff'), UHOOF = fill('#b48ad9');
+  var unicornLeg = function (x) {
+    return path('M' + x + ' 250 L' + x + ' 350 L' + (x + 24) + ' 350 L' + (x + 24) + ' 250', UW) + rect(x, 336, 24, 14, 3, UHOOF);
+  };
+  var unicorn = {
+    id: 'unicorn', color: '#f3e3ff',
+    name: { es: 'Unicornio', eu: 'Unikornioa', en: 'Unicorn' },
+    steps: [
+      { b: circle(130, 135, 50, UW), f: ellipse(90, 170, 36, 27, fill('#ffe3f0')) },
+      { bb: path('M112 98 L116 24 L146 92', fill('#ffd23f')) + path('M114 82 L137 74 M115 60 L128 55') +
+        path('M150 98 L168 54 L174 120', UW) },
+      { bbb: path('M165 125 L205 198 Q238 192 230 168 Q252 148 226 136 Q242 108 210 106 Q214 78 182 84 Q168 68 148 92Z', UM) },
+      { bbbb: path('M118 180 L170 112 L218 200 L165 225Z', UW + ' stroke="none"') + path('M118 180 L165 225 M170 112 L218 200') +
+        ellipse(245, 240, 100, 58, UW) },
+      { bbbbb: unicornLeg(170) + unicornLeg(205) + unicornLeg(272) + unicornLeg(306) +
+        path(tube([[332, 222], [368, 212], [386, 246], [374, 294]], 34, 12).d, UM) },
+      circle(144, 124, 7, INK) + path('M138 115 L133 108 M145 114 L145 106 M152 116 L157 110') +
+      ellipse(152, 152, 10, 6, CHEEK) + ellipse(72, 162, 4, 6, INK) + path('M76 182 Q92 192 108 182') +
+      path('M192 104 Q206 120 200 138 M214 138 Q226 156 216 176 M362 236 Q372 256 364 280'),
+      star5(330, 80, 20) + star5(60, 60, 14, '#ff9fbf') + star5(370, 140, 10, '#7fd0ff')
+    ]
+  };
+
+  /* ---------- Muñeco de nieve ---------- */
+  var SNOW = fill('#ffffff'), DARK = fill('#3a3640'), SCARF = fill('#e53935');
+  var snowArm = path('M120 236 L58 188 M82 207 L60 212 M82 207 L78 186');
+  var snowman = {
+    id: 'snowman', color: '#d8ecfb',
+    name: { es: 'Muñeco de nieve', eu: 'Elur-panpina', en: 'Snowman' },
+    steps: [
+      rect(160, 20, 80, 56, 6, DARK) + rect(160, 54, 80, 12, 0, SCARF) + rect(136, 72, 128, 14, 7, DARK),
+      { f: path('M146 164 Q200 184 254 164 L258 186 Q200 210 142 186Z', SCARF),
+        b: path('M218 192 L226 262 L254 256 L246 190', SCARF) + path('M232 262 L230 274 M241 260 L242 272 M250 258 L253 269') },
+      { b: circle(200, 124, 52, SNOW) },
+      { bb: circle(200, 266, 92, SNOW) },
+      circle(182, 112, 6, INK) + circle(218, 112, 6, INK) + path('M200 124 L246 134 L200 140Z', fill('#ff9f43')) +
+      join([[172, 144], [185, 152], [200, 155], [215, 152], [228, 144]], function (p) { return circle(p[0], p[1], 3.5, INK); }),
+      { f: circle(200, 230, 8, INK) + circle(200, 266, 8, INK) + circle(200, 302, 8, INK), bbb: snowArm + mirror(snowArm) },
+      { bbbb: path('M20 352 L380 352') },
+      flake(60, 70, 14) + flake(330, 60, 12) + flake(350, 250, 10) + flake(40, 300, 10) + flake(300, 130, 8) + flake(90, 150, 8)
+    ]
+  };
+
+  /* ---------- Papá Noel ---------- */
+  var SR = fill('#e53935');
+  var santaArm = path('M170 250 Q120 250 96 292 L118 306 Q136 280 166 278', SR) + circle(104, 306, 15, DARK);
+  var santa = {
+    id: 'santa', color: '#ffd6d6',
+    name: { es: 'Papá Noel', eu: 'Bizarzuri', en: 'Santa Claus' },
+    steps: [
+      { f: rect(128, 116, 144, 30, 15, SNOW) + circle(290, 104, 16, SNOW),
+        b: path('M144 120 Q166 40 256 66 Q278 76 284 100 L262 120', SR) },
+      path('M144 146 Q136 214 160 242 Q178 268 200 268 Q222 268 240 242 Q264 214 256 146 Q250 196 200 196 Q150 196 144 146Z', SNOW) +
+      path('M200 188 Q178 174 162 190 Q176 206 200 196 Q224 206 238 190 Q222 174 200 188Z', SNOW) +
+      circle(200, 178, 11, fill('#ffab91')),
+      { b: circle(200, 172, 48, SKIN) },
+      circle(182, 158, 5, INK) + circle(218, 158, 5, INK) + ellipse(166, 170, 8, 5, CHEEK) + ellipse(234, 170, 8, 5, CHEEK),
+      { bb: path('M162 232 Q112 280 110 336 L290 336 Q288 280 238 232', SR) },
+      { bbb: santaArm + mirror(santaArm) },
+      { bbbb: ellipse(165, 348, 32, 15, DARK) + ellipse(235, 348, 32, 15, DARK) },
+      { bb: rect(106, 326, 188, 18, 9, SNOW) + path('M130 284 L270 284 L276 304 L124 304Z', DARK) +
+        rect(186, 280, 28, 28, 4, fill('#ffd23f')) + rect(196, 290, 8, 8, 0, DARK) }
+    ]
+  };
+
+  /* ---------- Olentzero ---------- */
+  var BEARD = fill('#5d4037'), OBLUE = fill('#33507e');
+  var oleArm = path('M130 258 Q90 262 74 300 L98 312 Q110 290 134 286', OBLUE) + circle(84, 314, 14, SKIN);
+  var olentzero = {
+    id: 'olentzero', color: '#dfe7f3',
+    name: { es: 'Olentzero', eu: 'Olentzero', en: 'Olentzero' },
+    steps: [
+      path('M204 80 L208 64') + ellipse(200, 100, 86, 24, DARK + ' transform="rotate(-5 200 100)"'),
+      path('M142 128 Q134 200 168 232 Q184 246 200 246 Q216 246 232 232 Q266 200 258 128 Q252 184 200 186 Q148 184 142 128Z', BEARD) +
+      path('M200 180 Q178 166 164 182 Q178 196 200 188 Q222 196 236 182 Q222 166 200 180Z', BEARD) +
+      ellipse(200, 168, 12, 10, fill('#ff9e80')),
+      { b: circle(200, 158, 50, SKIN) },
+      circle(180, 142, 5, INK) + circle(220, 142, 5, INK) + path('M168 128 Q180 122 190 128 M210 128 Q220 122 232 128') +
+      ellipse(162, 162, 10, 7, fill('#ff8a80')) + ellipse(238, 162, 10, 7, fill('#ff8a80')),
+      { bb: ellipse(200, 300, 100, 72, OBLUE) },
+      { bb: path(ellipseBand(200, 300, 100, 72, 300, 326), SCARF) },
+      { bbb: oleArm + mirror(oleArm), bbbbb: path(blob(308, 230, 58, 2), fill('#c8a06a')) + path('M282 182 Q300 170 322 180') },
+      { bbbb: ellipse(165, 368, 30, 13, fill('#8d5a3b')) + ellipse(235, 368, 30, 13, fill('#8d5a3b')),
+        f: star5(70, 70, 18) + star5(340, 70, 12) + star5(50, 200, 10) }
+    ]
+  };
+
+  /* ---------- Mari Domingi ---------- */
+  var MDRED = fill('#e53935'), HAIR = fill('#6d4c41');
+  var mdBraid = tube([[150, 182], [140, 232], [134, 278]], 26, 18);
+  var mdBraidS = path(mdBraid.d, HAIR) + join([8, 14, 20], function (k) {
+    return path('M' + pt(mdBraid.L[k]) + ' Q' + pt(lerp(mdBraid.c[k + 2], mdBraid.c[k], 0)) + ' ' + pt(mdBraid.R[k]));
+  }) + path('M134 282 L118 296 L120 276Z M134 282 L150 296 L148 276Z', MDRED);
+  var mdArm = path('M164 212 Q118 236 104 284 L124 292 Q136 256 166 240', SNOW) + circle(112, 296, 12, SKIN);
+  var maridomingi = {
+    id: 'maridomingi', color: '#ffe0e0',
+    name: { es: 'Mari Domingi', eu: 'Mari Domingi', en: 'Mari Domingi' },
+    steps: [
+      path('M136 150 Q132 72 200 70 Q268 72 264 150 Q258 116 200 112 Q142 116 136 150Z', MDRED),
+      { b: circle(200, 160, 52, SKIN) },
+      { bb: mdBraidS + mirror(mdBraidS) },
+      circle(182, 156, 6, INK) + circle(218, 156, 6, INK) +
+      path('M186 182 Q200 194 214 182') + ellipse(168, 174, 9, 6, CHEEK) + ellipse(232, 174, 9, 6, CHEEK),
+      { bbb: path('M164 200 L156 260 L244 260 L236 200', SNOW) + path('M156 254 L112 352 L288 352 L244 254Z', MDRED) },
+      { bbb: path('M174 262 L164 336 Q200 344 236 336 L226 262Z', DARK) },
+      { bbbb: mdArm + mirror(mdArm), f: path('M292 296 Q326 246 360 296') + path('M282 300 L294 340 L354 340 L366 300Z', fill('#c8a06a')) +
+        path('M286 314 H362 M290 327 H358'), b: circle(309, 296, 12, MDRED) + circle(336, 294, 12, fill('#7cc576')) },
+      { bbbb: rect(170, 340, 18, 28, 0, SNOW) + rect(212, 340, 18, 28, 0, SNOW),
+        f: ellipse(176, 370, 16, 8, INK) + ellipse(224, 370, 16, 8, INK) +
+        join([[170, 90], [200, 84], [230, 90], [152, 118], [248, 118], [185, 102], [215, 102]], function (p) { return circle(p[0], p[1], 4, SNOW); }) }
+    ]
+  };
+
+  /* ---------- Reno ---------- */
+  var RD = fill('#a0673a'), RDL = fill('#e8c49a'), ANT = fill('#d9b38c');
+  var reinEar = path(leaf([150, 150], [82, 118], 20, 0), RD) + path(leaf([138, 144], [96, 125], 8, 0), fill('#ffb3c7'));
+  var reinAntler = path(tube([[172, 112], [150, 72], [130, 40], [118, 16]], 18, 10).d, ANT) +
+    path(tube([[148, 70], [114, 60], [96, 42]], 12, 8).d, ANT) + path(tube([[134, 46], [152, 26], [154, 8]], 10, 7).d, ANT);
+  var reindeer = {
+    id: 'reindeer', color: '#f0e0cc',
+    name: { es: 'Reno', eu: 'Elur-oreina', en: 'Reindeer' },
+    steps: [
+      ellipse(200, 250, 54, 38, RDL) + circle(200, 234, 16, SCARF),
+      { b: ellipse(200, 180, 74, 84, RD) },
+      { bb: reinEar + mirror(reinEar) },
+      { bbb: reinAntler + mirror(reinAntler) },
+      circle(170, 172, 13, SNOW) + circle(172, 174, 6, INK) + circle(230, 172, 13, SNOW) + circle(228, 174, 6, INK) +
+      path('M182 262 Q200 276 218 262') + ellipse(148, 214, 10, 6, CHEEK) + ellipse(252, 214, 10, 6, CHEEK),
+      flake(60, 230, 14) + flake(340, 240, 14) + flake(50, 330, 10) + flake(350, 340, 10) + flake(300, 300, 8) + flake(100, 290, 8)
+    ]
+  };
+
+  /* ---------- Montaña rusa ---------- */
+  var coaster = tube([[-10, 350], [50, 280], [115, 160], [175, 240], [225, 310], [282, 240], [332, 205], [372, 245], [420, 320]], 18, 18);
+  var cTop = 0;
+  for (var ci = 0; ci < coaster.c.length; ci++) if (coaster.c[ci][1] < coaster.c[cTop][1]) cTop = ci;
+  var cX = r1(coaster.c[cTop][0]), cY = r1(coaster.R[cTop][1]);
+  function polyline(P, from, to) { var d = ''; for (var i = from; i <= to; i++) d += (i === from ? 'M' : ' L') + pt(P[i]); return d; }
+  var cLast = coaster.c.length - 1;
+  var coasterTies = '', coasterPosts = '';
+  for (ci = 2; ci < cLast; ci += 3) coasterTies += 'M' + pt(coaster.L[ci]) + ' L' + pt(coaster.R[ci]) + ' ';
+  for (ci = 6; ci < cLast; ci += 12) {
+    if (coaster.L[ci][1] < 360 && coaster.L[ci][0] > 10 && coaster.L[ci][0] < 390) {
+      coasterPosts += 'M' + pt(coaster.L[ci]) + ' L' + r1(coaster.L[ci][0]) + ' 372 ';
+    }
+  }
+  var rollercoaster = {
+    id: 'rollercoaster', color: '#d8eefc',
+    name: { es: 'Montaña rusa', eu: 'Mendi errusiarra', en: 'Roller coaster' },
+    steps: [
+      { f: rect(cX - 44, cY - 54, 88, 40, 12, fill('#ff5d5d')),
+        b: circle(cX - 24, cY - 9, 9, DARK) + circle(cX + 24, cY - 9, 9, DARK) },
+      { bb: path(polyline(coaster.L, 0, cLast)) + path(polyline(coaster.R, 0, cLast)) + path(coasterTies) },
+      { bbb: path(coasterPosts) + path('M10 372 L390 372') },
+      { b: circle(cX - 20, cY - 66, 15, SKIN) + circle(cX + 20, cY - 66, 15, SKIN) +
+        path('M' + (cX - 36) + ' ' + (cY - 56) + ' L' + (cX - 46) + ' ' + (cY - 96) + ' M' + (cX + 36) + ' ' + (cY - 56) + ' L' + (cX + 46) + ' ' + (cY - 96)) },
+      circle(cX - 25, cY - 68, 3, INK) + circle(cX - 15, cY - 68, 3, INK) + circle(cX + 15, cY - 68, 3, INK) + circle(cX + 25, cY - 68, 3, INK) +
+      path('M' + (cX - 26) + ' ' + (cY - 60) + ' q6 6 12 0 M' + (cX + 14) + ' ' + (cY - 60) + ' q6 6 12 0') +
+      circle(cX, cY - 34, 7, fill('#ffd23f')),
+      circle(330, 60, 26, fill('#ffd23f')) + path('M240 70 q0 -18 18 -18 q6 -14 24 -10 q18 -4 20 14 q14 2 12 14Z', SNOW) +
+      path('M180 150 q0 -14 14 -14 q5 -11 19 -8 q14 -3 16 11 q11 2 9 11Z', SNOW)
+    ]
+  };
+
+  /* ---------- Tren ---------- */
+  var TRR = fill('#ff5d5d'), TRB = fill('#5bb8ff'), TRY = fill('#ffd23f');
+  var train = {
+    id: 'train', color: '#ffe3c2',
+    name: { es: 'Tren', eu: 'Trena', en: 'Train' },
+    steps: [
+      { f: rect(160, 88, 102, 16, 6, DARK), b: rect(170, 100, 80, 120, 0, TRR) },
+      { b: rect(250, 150, 100, 70, 0, TRB), bb: path('M300 152 L292 112 L334 112 L326 152', DARK) + rect(286, 100, 54, 14, 4, DARK) },
+      circle(205, 252, 26, DARK) + circle(205, 252, 9, TRY) + circle(285, 258, 20, DARK) + circle(285, 258, 7, TRY) +
+      circle(335, 258, 20, DARK) + circle(335, 258, 7, TRY),
+      { b: rect(160, 220, 210, 22, 0, fill('#8d6e63')) + path('M370 220 L394 244 L370 244', TRY) },
+      { f: circle(60, 256, 20, DARK) + circle(60, 256, 7, TRY) + circle(110, 256, 20, DARK) + circle(110, 256, 7, TRY),
+        b: rect(30, 160, 110, 60, 0, TRY) + rect(24, 220, 122, 22, 0, fill('#8d6e63')) + path('M146 231 L160 231') },
+      rect(186, 118, 48, 40, 6, fill('#bfe6ff')) + circle(350, 185, 10, TRY) + rect(48, 176, 30, 28, 4, fill('#bfe6ff')) +
+      rect(92, 176, 30, 28, 4, fill('#bfe6ff')) + path('M10 286 L390 286'),
+      { bbb: circle(330, 82, 16, SNOW) + circle(352, 54, 20, SNOW) + circle(380, 24, 22, SNOW) }
+    ]
+  };
+
+  /* ---------- Avión ---------- */
+  var PLB = fill('#7fd0ff'), PLR = fill('#ff5d5d');
+  var cloud = function (x, y, s) {
+    return path('M' + x + ' ' + y + ' q0 -' + 18 * s + ' ' + 18 * s + ' -' + 18 * s + ' q6 -' + 14 * s + ' ' + 24 * s + ' -' + 10 * s +
+      ' q18 -' + 4 * s + ' ' + 20 * s + ' ' + 14 * s + ' q14 ' + 2 * s + ' ' + 12 * s + ' ' + 14 * s + 'Z', SNOW);
+  };
+  var plane = {
+    id: 'plane', color: '#d4ecfb',
+    name: { es: 'Avión', eu: 'Hegazkina', en: 'Plane' },
+    steps: [
+      path('M60 186 Q60 160 100 160 L280 160 Q350 160 360 200 Q350 236 280 236 L100 236 Q60 236 60 212Z', PLB),
+      { b: path('M84 166 L58 90 L100 90 L144 166', PLR) + path('M184 166 L156 104 L196 104 L250 166', fill('#e04848')) },
+      path('M170 236 L140 314 L190 314 L248 236', PLR),
+      { b: ellipse(374, 200, 9, 46, TRY) + circle(362, 200, 10, DARK) },
+      circle(130, 192, 13, SNOW) + circle(175, 192, 13, SNOW) + circle(220, 192, 13, SNOW) +
+      path('M292 172 Q330 174 342 198 L292 198Z', SNOW),
+      cloud(30, 360, 1.4) + cloud(270, 360, 1.1) + cloud(250, 80, 1) + path('M10 140 H40 M4 176 H30 M14 212 H40')
+    ]
+  };
+
+  /* ---------- Globo aerostático ---------- */
+  var balloon = {
+    id: 'balloon', color: '#d4ecfb',
+    name: { es: 'Globo', eu: 'Globo aerostatikoa', en: 'Hot air balloon' },
+    steps: [
+      path('M200 40 C282 40 312 112 292 170 Q272 220 236 252 L164 252 Q128 220 108 170 C88 112 118 40 200 40Z', fill('#ff6b5b')),
+      path('M200 40 Q156 140 170 252 L230 252 Q244 140 200 40Z', TRY),
+      { f: path('M164 252 L172 268 L228 268 L236 252', fill('#c0703f')) + rect(165, 300, 70, 48, 8, fill('#c8a06a')),
+        b: path('M174 268 L176 300 M226 268 L224 300') },
+      { b: circle(200, 284, 17, SKIN) + path('M232 300 L262 270') + circle(266, 266, 8, SKIN) },
+      circle(194, 282, 3, INK) + circle(206, 282, 3, INK) + path('M194 291 q6 5 12 0') +
+      path('M165 318 H235 M165 334 H235 M188 300 V348 M212 300 V348'),
+      cloud(30, 120, 1.3) + cloud(290, 330, 1.2) + path('M310 90 q10 -10 20 0 q10 -10 20 0 M60 260 q8 -8 16 0 q8 -8 16 0')
+    ]
+  };
+
+  /* ---------- Camión de bomberos ---------- */
+  var FT = fill('#e53935'), GREY = fill('#cfd8dc');
+  var firetruck = {
+    id: 'firetruck', color: '#ffd6d6',
+    name: { es: 'Camión de bomberos', eu: 'Suhiltzaileen kamioia', en: 'Fire engine' },
+    steps: [
+      path('M260 140 L322 140 Q338 140 346 160 L370 216 L370 272 L350 272 A40 40 0 0 0 270 272 L260 272Z', FT),
+      { b: path('M30 180 L260 180 L260 272 L140 272 A40 40 0 0 0 60 272 L30 272Z', FT) },
+      { bb: circle(100, 278, 30, DARK) + circle(100, 278, 12, GREY) + circle(310, 278, 30, DARK) + circle(310, 278, 12, GREY) },
+      { bb: rect(40, 160, 212, 20, 0, GREY + ' stroke="none"') + path('M40 160 H252 M40 160 V180 M252 160 V180') +
+        path('M64 160 V180 M88 160 V180 M112 160 V180 M136 160 V180 M160 160 V180 M184 160 V180 M208 160 V180 M232 160 V180') },
+      { f: path('M282 152 L322 152 Q330 152 334 162 L350 204 L282 204Z', fill('#bfe6ff')) + path('M284 222 H302'),
+        b: path('M286 141 L286 128 Q296 116 306 128 L306 141', fill('#4cc3ff')) },
+      circle(190, 226, 24, TRY) + circle(190, 226, 8, GREY) + rect(50, 196, 100, 46, 6, fill('#ff8a80')) + path('M100 196 V242') +
+      circle(362, 236, 6, TRY),
+      { bbb: path('M10 308 H390 M30 330 H70 M130 330 H170 M230 330 H270 M330 330 H370') }
+    ]
+  };
+
+  /* ---------- Astronauta ---------- */
+  var SUIT = fill('#eef3f8'), SUIT2 = fill('#b0bec5');
+  var astroArm = path('M140 214 Q100 226 92 276 L118 282 Q124 248 146 240', SUIT) + circle(104, 288, 15, fill('#ff9f43'));
+  var astroLeg = path('M150 300 L150 350 L190 350 L190 300', SUIT) + rect(142, 344, 54, 22, 10, SUIT2);
+  var astronaut = {
+    id: 'astronaut', color: '#d6d8f5',
+    name: { es: 'Astronauta', eu: 'Astronauta', en: 'Astronaut' },
+    steps: [
+      circle(200, 130, 74, SUIT),
+      ellipse(200, 134, 54, 44, fill('#bfe6ff')) + circle(182, 128, 6, INK) + circle(218, 128, 6, INK) +
+      path('M186 148 Q200 160 214 148') + path('M164 110 Q172 98 186 96'),
+      { b: rect(132, 190, 136, 120, 34, SUIT) },
+      rect(165, 228, 70, 44, 8, SUIT2) + circle(184, 250, 8, fill('#ff5d5d')) + circle(216, 250, 8, TRY),
+      { bb: astroArm + mirror(astroArm) },
+      { bb: astroLeg + mirror(astroLeg) },
+      { bbb: rect(110, 200, 180, 100, 16, SUIT2), b: path('M240 72 L262 34') + circle(265, 29, 8, fill('#ff5d5d')) },
+      { b: ellipse(335, 330, 48, 12, fill('#ffd23f')), f: circle(335, 330, 24, fill('#ffb36b')) + path('M290 332 Q335 352 380 326') +
+        star5(60, 60, 14) + star5(340, 70, 12) + star5(50, 330, 10) + star5(300, 200, 8) }
+    ]
+  };
+
+  /* ---------- Princesa ---------- */
+  var PDRESS = fill('#ff9fd0'), PHAIR = fill('#ffd54f');
+  var princessArm = path('M168 214 Q130 236 108 262 L120 276 Q144 254 172 240', SKIN) + circle(110, 272, 11, SKIN);
+  var princess = {
+    id: 'princess', color: '#ffe0f0',
+    name: { es: 'Princesa', eu: 'Printzesa', en: 'Princess' },
+    steps: [
+      path('M150 100 L150 60 L175 82 L200 52 L225 82 L250 60 L250 100Z', TRY),
+      { b: circle(200, 140, 50, SKIN) + path('M152 114 Q172 126 200 108 Q228 126 248 114 Q244 96 200 96 Q156 96 152 114Z', PHAIR) },
+      { bb: path('M138 140 Q128 78 200 78 Q272 78 262 140 L272 245 Q250 255 236 240 L228 165 L172 165 L164 240 Q150 255 128 245Z', PHAIR) },
+      circle(182, 144, 6, INK) + circle(218, 144, 6, INK) +
+      path('M188 166 Q200 176 212 166') + ellipse(168, 160, 9, 6, CHEEK) + ellipse(232, 160, 9, 6, CHEEK),
+      { bbb: rect(188, 180, 24, 30, 0, SKIN) + path('M168 204 Q200 216 232 204 L234 256 L166 256Z', PDRESS) +
+        path('M170 250 Q120 300 90 360 L310 360 Q280 300 230 250Z', PDRESS) },
+      { bbbb: princessArm + mirror(princessArm), f: path('M292 268 L330 196') + star5(334, 188, 16) },
+      circle(200, 72, 6, fill('#ff5d5d')) + circle(166, 84, 4, fill('#5bb8ff')) + circle(234, 84, 4, fill('#5bb8ff')) +
+      path('M104 338 Q120 326 136 338 Q152 326 168 338 Q184 326 200 338 Q216 326 232 338 Q248 326 264 338 Q280 326 296 338') +
+      path('M178 226 Q200 236 222 226')
+    ]
+  };
+
+  /* ---------- Sirena ---------- */
+  var MHAIR = fill('#ff7043'), MTAIL = fill('#4dd0b0');
+  var mermaid = {
+    id: 'mermaid', color: '#cdeefc',
+    name: { es: 'Sirena', eu: 'Sirena', en: 'Mermaid' },
+    steps: [
+      circle(200, 110, 46, SKIN),
+      { b: path('M152 110 Q148 58 200 58 Q252 58 248 110 Q262 150 250 190 Q268 220 246 236 L226 140 L174 140 L154 236 Q132 220 150 190 Q138 150 152 110Z', MHAIR) },
+      { bb: path('M178 150 L172 232 L228 232 L222 150', SKIN) + circle(187, 186, 12, fill('#c39bd3')) + circle(213, 186, 12, fill('#c39bd3')) },
+      { bbb: path(tube([[200, 226], [204, 280], [226, 322], [268, 340]], 58, 16).d, MTAIL) },
+      { bbbb: path('M262 330 Q300 290 334 300 Q310 330 334 362 Q300 372 262 350Z', MTAIL) },
+      { bbbb: path('M222 170 Q262 160 276 120 L292 126 Q280 176 226 190', SKIN) + circle(286, 114, 11, SKIN) +
+        path('M176 172 Q130 190 120 230 L136 236 Q144 206 178 194', SKIN) + circle(126, 240, 11, SKIN) },
+      circle(184, 110, 5, INK) + circle(216, 110, 5, INK) + path('M188 128 Q200 138 212 128') +
+      ellipse(172, 122, 8, 5, CHEEK) + ellipse(228, 122, 8, 5, CHEEK) +
+      path('M190 252 q10 10 20 0 M196 276 q10 10 20 0 M206 300 q10 10 20 0') +
+      circle(330, 210, 10, fill('#d4f1ff')) + circle(350, 170, 7, fill('#d4f1ff')) + circle(336, 130, 12, fill('#d4f1ff')) +
+      path(roundStar(80, 340, 26, 12, 5, 0.3, -Math.PI / 2), fill('#ffa94d'))
+    ]
+  };
+
+  /* ---------- Dragón ---------- */
+  var DRG = fill('#7cc576'), DRB = fill('#ffe08a');
+  var dragonSpikes = '';
+  for (var ds = -105; ds <= 15; ds += 24) {
+    var th = ds * Math.PI / 180, th1 = th - 0.13, th2 = th + 0.13;
+    var e = function (t, k) { return [225 + 85 * k * Math.cos(t), 255 + 95 * k * Math.sin(t)]; };
+    dragonSpikes += 'M' + pt(e(th1, 0.96)) + ' L' + pt(e(th, 1.24)) + ' L' + pt(e(th2, 0.96)) + ' ';
+  }
+  var dragon = {
+    id: 'dragon', color: '#d4efcc',
+    name: { es: 'Dragón', eu: 'Herensugea', en: 'Dragon' },
+    steps: [
+      { b: ellipse(150, 120, 62, 52, DRG), f: ellipse(100, 145, 42, 32, DRG) },
+      { bb: path('M150 72 L160 30 L176 78', DRB) + path('M182 80 L206 46 L204 96', DRB) },
+      { bb: ellipse(225, 255, 85, 95, DRG) + ellipse(200, 265, 52, 72, DRB) +
+        path('M156 236 Q200 248 244 236 M152 270 Q200 282 248 270 M160 304 Q200 316 240 304') },
+      { bbb: path(dragonSpikes, DRB) },
+      { bbbb: path('M270 190 Q300 120 362 108 Q350 140 362 162 Q336 160 340 188 Q314 180 292 214Z', fill('#5aa857')) },
+      { bbbb: path(tube([[280, 320], [330, 344], [364, 322], [372, 292]], 40, 12).d, DRG) + path('M358 300 L372 262 L390 298Z', DRB),
+        bbb: ellipse(180, 350, 32, 16, DRG) + ellipse(262, 350, 32, 16, DRG) },
+      circle(152, 106, 13, SNOW) + circle(148, 108, 6, INK) + ellipse(72, 134, 3, 5, INK) + path('M76 160 Q100 172 124 160') +
+      ellipse(134, 150, 9, 6, CHEEK) + path('M56 146 Q32 140 18 120 Q36 124 34 108 Q50 124 60 132', fill('#ff9f43'))
+    ]
+  };
+
+  /* ---------- Calabaza ---------- */
+  var PK = fill('#ff9f43'), PK2 = fill('#ff8a1f');
+  var bat2 = function (x, y) { return path('M' + x + ' ' + y + ' q10 -12 20 0 q10 -12 20 0 q-10 0 -20 12 q-10 -12 -20 -12Z', INK); };
+  var pumpkin = {
+    id: 'pumpkin', color: '#ffe0bf',
+    name: { es: 'Calabaza', eu: 'Kalabaza', en: 'Pumpkin' },
+    steps: [
+      ellipse(200, 235, 62, 105, PK),
+      { b: ellipse(140, 240, 62, 96, PK2) + ellipse(260, 240, 62, 96, PK2) },
+      { bb: ellipse(96, 246, 48, 82, PK) + ellipse(304, 246, 48, 82, PK) },
+      { bbb: path('M190 140 L184 92 Q196 82 214 90 L210 140', fill('#7a5a2a')) + path('M214 100 Q240 70 262 90 Q276 104 260 112') +
+        path(leaf([214, 112], [270, 128], 14, 0), fill('#5cbf5c')) },
+      path('M158 214 L188 214 L173 186Z', INK) + path('M212 214 L242 214 L227 186Z', INK) + path('M192 238 L208 238 L200 226Z', INK) +
+      path('M150 258 Q200 300 250 258 L238 268 L226 258 L214 272 L200 262 L186 272 L174 258 L162 268Z', INK),
+      circle(340, 60, 28, fill('#fff3b0')) + bat2(50, 70) + bat2(110, 40) + star5(300, 110, 10) + star5(40, 140, 8)
+    ]
+  };
+
+  /* ---------- Tarta de cumpleaños ---------- */
+  var candle = function (x, c) {
+    return rect(x, 98, 14, 58, 4, fill(c));
+  };
+  var flame = function (x) { return path('M' + x + ' 92 Q' + (x - 13) + ' 76 ' + x + ' 56 Q' + (x + 13) + ' 76 ' + x + ' 92Z', TRY); };
+  var cake = {
+    id: 'cake', color: '#ffe1ea',
+    name: { es: 'Tarta', eu: 'Tarta', en: 'Birthday cake' },
+    steps: [
+      rect(130, 150, 140, 80, 10, fill('#ffb6c8')),
+      { b: rect(90, 226, 220, 100, 12, fill('#ffe0b2')) },
+      { bb: ellipse(200, 330, 150, 16, GREY) },
+      { b: candle(156, '#7fd0ff') + candle(193, '#ffd23f') + candle(230, '#7cc576') },
+      flame(163) + flame(200) + flame(237) + path('M163 98 V92 M200 98 V92 M237 98 V92'),
+      path(waves(130, 270, 176, 20, -12)) + path(waves(90, 310, 258, 22, -12)) +
+      join([[120, 296], [160, 300], [200, 296], [240, 300], [280, 296]], function (p) { return circle(p[0], p[1], 9, fill('#ff5d5d')); }) +
+      path('M150 196 l8 4 M180 206 l6 -6 M210 198 l8 2 M240 206 l4 -8 M196 214 l-6 4')
+    ]
+  };
+
+  /* ---------- León ---------- */
+  var LION = fill('#ffd27f'), MANE = fill('#e08a2e');
+  var lionEar = circle(150, 140, 24, LION) + circle(150, 140, 11, fill('#f2b25c'));
+  var lion = {
+    id: 'lion', color: '#fde3b0',
+    name: { es: 'León', eu: 'Lehoia', en: 'Lion' },
+    steps: [
+      circle(200, 200, 72, LION),
+      { b: lionEar + mirror(lionEar) },
+      { bb: path(scallop(200, 205, 110, 14, 8), MANE) },
+      path('M200 222 Q170 210 164 236 Q170 260 200 250 Q230 260 236 236 Q230 210 200 222Z', fill('#fff1d6')) +
+      path('M186 210 L214 210 L200 226Z', fill('#8d5a3b')) + path('M200 226 V240'),
+      circle(174, 184, 7, INK) + circle(226, 184, 7, INK) + path('M160 168 Q172 160 184 166 M216 166 Q228 160 240 168') +
+      circle(180, 236, 2.5, INK) + circle(188, 244, 2.5, INK) + circle(220, 236, 2.5, INK) + circle(212, 244, 2.5, INK) +
+      ellipse(152, 220, 10, 6, CHEEK) + ellipse(248, 220, 10, 6, CHEEK)
+    ]
+  };
+
+  /* ---------- Elefante ---------- */
+  var ELE = fill('#b0bec5');
+  var eleLeg = function (x) {
+    return path('M' + x + ' 270 L' + x + ' 350 L' + (x + 34) + ' 350 L' + (x + 34) + ' 270', ELE) +
+      path('M' + (x + 6) + ' 350 q5 -8 10 0 M' + (x + 18) + ' 350 q5 -8 10 0');
+  };
+  var elephant = {
+    id: 'elephant', color: '#dde3ea',
+    name: { es: 'Elefante', eu: 'Elefantea', en: 'Elephant' },
+    steps: [
+      circle(130, 150, 62, ELE),
+      { b: ellipse(200, 160, 48, 66, ELE) + ellipse(206, 162, 30, 46, fill('#ffc1d4')) },
+      { b: path(tube([[100, 180], [80, 230], [72, 272], [52, 290], [38, 272]], 42, 22).d, ELE) },
+      { bb: ellipse(250, 240, 100, 70, ELE) },
+      { bbb: eleLeg(170) + eleLeg(212) + eleLeg(272) + eleLeg(310) },
+      { bbb: path('M346 226 Q372 240 366 272') + path('M366 270 L356 290 L368 286 L376 292Z', INK),
+        f: circle(118, 140, 7, INK) + ellipse(146, 172, 10, 6, CHEEK) + path('M96 196 Q108 204 118 196') },
+      circle(36, 240, 6, fill('#7fd0ff')) + circle(22, 214, 7, fill('#7fd0ff')) + circle(46, 206, 6, fill('#7fd0ff')) + circle(30, 180, 8, fill('#7fd0ff'))
+    ]
+  };
+
+  /* ---------- Panda ---------- */
+  var pandaPatch = ellipse(170, 140, 17, 24, DARK + ' transform="rotate(30 170 140)"') + circle(172, 136, 7, SNOW) + circle(173, 137, 3.5, INK);
+  var pandaFoot = ellipse(150, 330, 34, 26, DARK) + circle(150, 336, 11, fill('#ffb3c7'));
+  var pandaArm = ellipse(116, 258, 24, 46, DARK + ' transform="rotate(25 116 258)"');
+  var panda = {
+    id: 'panda', color: '#e0ecd8',
+    name: { es: 'Panda', eu: 'Panda', en: 'Panda' },
+    steps: [
+      circle(200, 140, 72, SNOW),
+      { b: circle(142, 82, 26, DARK) + circle(258, 82, 26, DARK) },
+      pandaPatch + mirror(pandaPatch) + ellipse(200, 166, 12, 8, INK) + path('M188 180 Q194 188 200 180 Q206 188 212 180') +
+      ellipse(152, 176, 9, 6, CHEEK) + ellipse(248, 176, 9, 6, CHEEK),
+      pandaFoot + mirror(pandaFoot),
+      { b: ellipse(200, 270, 92, 80, SNOW) },
+      { bb: pandaArm + mirror(pandaArm) },
+      { bbbb: rect(326, 80, 20, 290, 4, fill('#7cc576')) + path('M326 160 H346 M326 240 H346 M326 320 H346') +
+        path(leaf([346, 156], [384, 126], 9, 0), fill('#5cbf5c')) + path(leaf([326, 236], [292, 206], 9, 0), fill('#5cbf5c')) }
+    ]
+  };
+
+  /* ---------- Rana ---------- */
+  var FRG = fill('#7cc576'), FRL = fill('#d4efb0');
+  var frogEye = circle(150, 116, 20, SNOW) + circle(152, 118, 10, INK);
+  var frogLeg = ellipse(124, 318, 46, 30, FRG) + path('M84 336 L60 350 M84 336 L66 360 M84 336 L86 362');
+  var frogHand = path('M170 344 L158 362 M170 344 L170 364 M170 344 L182 362');
+  var frog = {
+    id: 'frog', color: '#d4efcc',
+    name: { es: 'Rana', eu: 'Igela', en: 'Frog' },
+    steps: [
+      circle(150, 118, 36, FRG) + circle(250, 118, 36, FRG),
+      { b: ellipse(200, 190, 112, 74, FRG) },
+      frogEye + mirror(frogEye),
+      path('M130 206 Q200 256 270 206') + circle(188, 180, 3, INK) + circle(212, 180, 3, INK) +
+      ellipse(116, 214, 12, 7, CHEEK) + ellipse(284, 214, 12, 7, CHEEK),
+      { bb: ellipse(200, 290, 86, 66, FRG) + ellipse(200, 300, 54, 44, FRL), f: frogHand + mirror(frogHand) },
+      { bbb: frogLeg + mirror(frogLeg) },
+      { bbbb: path('M200 364 L60 360 Q20 356 22 334 Q30 308 200 304 Q370 308 378 334 Q380 356 340 360Z', fill('#4caf50')),
+        f: ellipse(330, 70, 10, 7, INK) + ellipse(322, 58, 9, 12, fill('#e3f2fd')) + ellipse(338, 58, 9, 12, fill('#e3f2fd')) +
+        path('M300 90 q-10 10 -20 0 q-10 -10 -20 0') }
+    ]
+  };
+
+  /* ======================== PERSONAJES DE DIBUJOS ======================== */
+  /* Versiones muy simplificadas para aprender a dibujar (uso educativo).    */
+
+  /* ---------- Peppa Pig y George ---------- */
+  var PEP = fill('#ffb3c7'), PEP2 = fill('#ff9fbf');
+  var pigHeadSteps = [
+    { b: path('M92 92 C130 88 150 96 170 96 C215 90 252 118 250 156 C248 196 214 210 184 208 C150 206 140 160 96 150Z', PEP),
+      f: ellipse(90, 121, 18, 31, PEP2) },
+    { bb: path('M172 106 L176 70 L196 106', PEP) + path('M206 108 L218 74 L226 120', PEP) },
+    circle(124, 114, 10, SNOW) + circle(126, 114, 5, INK) + circle(152, 112, 10, SNOW) + circle(154, 112, 5, INK) +
+    ellipse(86, 112, 3, 6, INK) + ellipse(94, 130, 3, 6, INK) + circle(198, 160, 14, fill('#ff7aa8')) + path('M120 168 Q150 190 176 172')
+  ];
+  var peppa = {
+    id: 'peppa', color: '#ffe0ea',
+    name: { es: 'Peppa Pig', eu: 'Peppa Pig', en: 'Peppa Pig' },
+    steps: pigHeadSteps.concat([
+      { bb: path('M158 190 L112 304 Q186 316 260 304 L224 190', SCARF) },
+      { f: path('M138 240 L96 222 M96 222 L84 212 M96 222 L84 230 M240 240 L284 222 M284 222 L296 212 M284 222 L296 230'),
+        bbb: path('M164 300 V350 M208 300 V350'), b: ellipse(158, 354, 15, 8, INK) + ellipse(202, 354, 15, 8, INK) },
+      { f: path('M250 272 q22 -8 20 8 q-2 12 -12 4 q-6 -8 12 -14'), bbbb: ellipse(180, 358, 130, 20, fill('#a1887f')) }
+    ])
+  };
+  var george = {
+    id: 'george', color: '#dbeafb',
+    name: { es: 'George Pig', eu: 'George Pig', en: 'George Pig' },
+    steps: pigHeadSteps.concat([
+      { bb: path('M158 190 L132 294 Q190 304 248 294 L224 190', fill('#4fa3e0')) },
+      { f: path('M142 238 L100 220 M100 220 L88 210 M100 220 L88 228 M236 238 L278 220'),
+        bbb: path('M168 290 V350 M210 290 V350'), b: ellipse(162, 354, 15, 8, INK) + ellipse(204, 354, 15, 8, INK) },
+      { b: path('M298 252 Q288 214 298 194 Q306 178 328 180 Q348 184 344 200 Q340 212 322 208 Q314 224 328 242', fill('#7cc576')),
+        f: ellipse(322, 258, 32, 22, fill('#7cc576')) + circle(322, 192, 4, INK) + path('M306 278 V292 M336 278 V292'),
+        bb: path('M346 250 L378 266 L346 268', fill('#7cc576')) + path('M308 240 L314 226 L322 238 L330 226 L338 240', fill('#5aa857')) }
+    ])
+  };
+
+  /* ---------- Hello Kitty ---------- */
+  var KITTY_RED = fill('#ff3b5c');
+  var kittyEar = path('M100 140 L104 70 L160 104', SNOW);
+  var kittyWhisk = path('M122 186 L70 176 M120 200 L66 200 M122 214 L70 224');
+  var hellokitty = {
+    id: 'hellokitty', color: '#ffe0e8',
+    name: { es: 'Hello Kitty', eu: 'Hello Kitty', en: 'Hello Kitty' },
+    steps: [
+      { f: circle(266, 96, 13, KITTY_RED),
+        b: ellipse(240, 84, 26, 18, KITTY_RED + ' transform="rotate(-20 240 84)"') + ellipse(292, 84, 26, 18, KITTY_RED + ' transform="rotate(20 292 84)"') },
+      { bb: ellipse(200, 175, 118, 84, SNOW) },
+      { bbb: kittyEar + mirror(kittyEar) },
+      ellipse(150, 182, 9, 13, INK) + ellipse(250, 182, 9, 13, INK) + ellipse(200, 204, 13, 9, TRY),
+      kittyWhisk + mirror(kittyWhisk),
+      { bbbb: path('M154 246 L130 330 L270 330 L246 246', fill('#5b8fd6')),
+        bbbbb: ellipse(128, 282, 16, 28, SNOW + ' transform="rotate(30 128 282)"') + ellipse(272, 282, 16, 28, SNOW + ' transform="rotate(-30 272 282)"') +
+        ellipse(166, 336, 26, 13, SNOW) + ellipse(234, 336, 26, 13, SNOW) },
+      { bbbb: circle(178, 290, 6, TRY) + circle(222, 290, 6, TRY),
+        f: path('M60 70 q-10 -14 0 -18 q6 -2 10 6 q4 -8 10 -6 q10 4 0 18 l-10 10Z', CHEEK) +
+        path('M330 300 q-10 -14 0 -18 q6 -2 10 6 q4 -8 10 -6 q10 4 0 18 l-10 10Z', CHEEK) }
+    ]
+  };
+
+  /* ---------- Bluey y Bingo ---------- */
+  function heeler(id, name, col, light, darkC, earTall, bg) {
+    var C = fill(col), L = fill(light), D = fill(darkC);
+    var ear = earTall ?
+      path('M140 100 L118 18 L182 82', C) + path('M146 92 L130 42 L170 84', D) :
+      path('M138 104 Q112 40 128 34 Q150 40 182 82', C) + path('M146 94 Q128 52 136 48 Q152 54 170 84', D);
+    var arm = path('M152 236 L112 288 L130 302 L158 264', C) + circle(118, 300, 12, L);
+    var leg = rect(152, 316, 34, 36, 0, C) + ellipse(166, 354, 22, 11, L);
+    return {
+      id: id, color: bg,
+      name: { es: name, eu: name, en: name },
+      steps: [
+        ellipse(200, 196, 48, 34, L) + ellipse(200, 172, 16, 11, INK),
+        { b: ellipse(200, 150, 84, 76, C) },
+        { bb: ear + mirror(ear) },
+        circle(168, 138, 8, INK) + circle(232, 138, 8, INK) + path('M156 120 Q166 114 176 118 M224 118 Q234 114 244 120', 'stroke-width="8"') +
+        path('M182 206 Q200 220 218 206'),
+        { bbb: path('M152 214 L142 330 L258 330 L248 214', C) + ellipse(200, 284, 40, 44, L) },
+        { bbbb: arm + mirror(arm) + leg + mirror(leg) },
+        { bbbbb: path(tube([[248, 300], [290, 292], [314, 258], [318, 226]], 22, 14).d, C), f: path('M306 244 L326 248') }
+      ]
+    };
+  }
+  var bluey = heeler('bluey', 'Bluey', '#7fb6ea', '#f1e4b8', '#3f5fa8', true, '#d8eafb');
+  var bingo = heeler('bingo', 'Bingo', '#f5a65b', '#f8ebcb', '#c8662e', false, '#ffe3c8');
+
+  /* ---------- Pandy Paws ---------- */
+  var pandyEar = path('M140 96 L130 34 L184 78', DARK);
+  var pandyPatch = ellipse(170, 140, 18, 22, DARK + ' transform="rotate(-25 170 140)"') + circle(171, 138, 8, SNOW) + circle(172, 139, 4, INK);
+  var pandyWhisk = path('M150 168 L112 160 M150 178 L112 184');
+  var pandyArm = ellipse(122, 262, 20, 40, DARK + ' transform="rotate(30 122 262)"');
+  var pandypaws = {
+    id: 'pandypaws', color: '#efe0f5',
+    name: { es: 'Pandy Paws', eu: 'Pandy Paws', en: 'Pandy Paws' },
+    steps: [
+      circle(200, 140, 70, SNOW),
+      { b: pandyEar + mirror(pandyEar) },
+      pandyPatch + mirror(pandyPatch),
+      path('M190 160 L210 160 L200 172Z', fill('#ff9fbf')) + path('M200 172 V178 M186 180 Q193 188 200 178 Q207 188 214 180') +
+      pandyWhisk + mirror(pandyWhisk),
+      { b: ellipse(200, 270, 78, 76, SNOW) },
+      { bb: pandyArm + mirror(pandyArm) + ellipse(162, 344, 28, 18, DARK) + ellipse(238, 344, 28, 18, DARK) },
+      path('M200 262 q-14 -16 -24 -4 q-8 12 24 30 q32 -18 24 -30 q-10 -12 -24 4Z', fill('#ff9fd0')) +
+      ellipse(152, 176, 9, 6, CHEEK) + ellipse(248, 176, 9, 6, CHEEK)
+    ]
+  };
+
+  /* ---------- Cakey Cat ---------- */
+  var cakeyEar = path('M140 116 L134 60 L180 96', SNOW) + path('M146 104 L142 74 L168 96', fill('#ffb3c7'));
+  var cakeyArm = ellipse(136, 262, 14, 22, SNOW + ' transform="rotate(30 136 262)"');
+  var cakey = {
+    id: 'cakey', color: '#ffe1ea',
+    name: { es: 'Cakey', eu: 'Cakey', en: 'Cakey Cat' },
+    steps: [
+      ellipse(200, 150, 82, 64, SNOW),
+      { b: cakeyEar + mirror(cakeyEar), bb: circle(200, 78, 14, fill('#ff3b3b')) + path('M200 66 Q204 52 216 46') },
+      circle(172, 150, 12, INK) + circle(175, 146, 4, SNOW) + circle(228, 150, 12, INK) + circle(231, 146, 4, SNOW) +
+      path('M194 168 L206 168 L200 175Z', fill('#ff9fbf')) + path('M188 180 Q194 188 200 178 Q206 188 212 180'),
+      { b: path('M140 196 L156 320 L244 320 L260 196', fill('#ff9fd0')) },
+      path('M170 214 L176 318 M200 214 V318 M230 214 L224 318'),
+      { bb: cakeyArm + mirror(cakeyArm) + ellipse(176, 326, 18, 10, SNOW) + ellipse(224, 326, 18, 10, SNOW) },
+      join([[154, 110, -25, '#4cc3ff'], [236, 106, 25, '#ffd23f'], [182, 102, 45, '#6fd36f'], [258, 134, 70, '#ff5d5d'],
+        [138, 144, -70, '#b98ae0'], [214, 96, -10, '#ff9f43'], [196, 120, 80, '#ff7aa8']], function (s) {
+        return rect(s[0] - 8, s[1] - 3.5, 16, 7, 3.5, fill(s[3]) + ' stroke-width="3" transform="rotate(' + s[2] + ' ' + s[0] + ' ' + s[1] + ')"');
+      }) +
+      ellipse(150, 176, 10, 6, CHEEK) + ellipse(250, 176, 10, 6, CHEEK)
+    ]
+  };
+
+  /* ---------- Pocoyó ---------- */
+  var PBLUE = fill('#3d8fe0');
+  var pocoArm = path('M168 246 L130 280 L144 294 L172 270', PBLUE) + circle(134, 290, 11, SKIN);
+  var pocoLeg = rect(170, 314, 26, 26, 0, PBLUE) + ellipse(180, 342, 22, 10, fill('#1f5fa8'));
+  var pocoyo = {
+    id: 'pocoyo', color: '#d6e8fb',
+    name: { es: 'Pocoyó', eu: 'Pocoyo', en: 'Pocoyo' },
+    steps: [
+      path('M118 152 Q116 62 200 62 Q284 62 282 152 Q200 128 118 152Z', PBLUE),
+      { b: circle(200, 160, 78, SKIN) },
+      ellipse(174, 182, 11, 14, INK) + circle(178, 176, 4, SNOW) + ellipse(226, 182, 11, 14, INK) + circle(230, 176, 4, SNOW) +
+      path('M188 210 Q200 220 212 210') + ellipse(152, 204, 10, 6, CHEEK) + ellipse(248, 204, 10, 6, CHEEK),
+      { bb: path('M168 230 L160 320 L240 320 L232 230', PBLUE) },
+      { bbb: pocoArm + mirror(pocoArm) + pocoLeg + mirror(pocoLeg) },
+      { bbbb: circle(320, 330, 30, fill('#ffd23f')), f: path('M290 330 Q320 320 350 330 M320 300 Q330 330 320 360') }
+    ]
+  };
+
+  /* ---------- Pikachu ---------- */
+  var PIKA = fill('#ffd93d');
+  var pikaEar = path('M150 104 L96 22 L176 92', PIKA) + path('M112.2 46.6 L96 22 L120 43 Q116 48 112.2 46.6Z', INK);
+  var pikachu = {
+    id: 'pikachu', color: '#fff3c4',
+    name: { es: 'Pikachu', eu: 'Pikachu', en: 'Pikachu' },
+    steps: [
+      ellipse(200, 150, 80, 66, PIKA),
+      { b: pikaEar + mirror(pikaEar) },
+      circle(170, 142, 10, INK) + circle(173, 138, 3.5, SNOW) + circle(230, 142, 10, INK) + circle(233, 138, 3.5, SNOW) +
+      ellipse(200, 158, 4, 3, INK) + path('M186 170 Q193 178 200 170 Q207 178 214 170') +
+      circle(144, 172, 15, fill('#ff5d5d')) + circle(256, 172, 15, fill('#ff5d5d')),
+      { bb: ellipse(200, 280, 70, 76, PIKA) },
+      { f: ellipse(168, 250, 11, 16, PIKA + ' transform="rotate(-35 168 250)"') + ellipse(232, 250, 11, 16, PIKA + ' transform="rotate(35 232 250)"'), bbb: ellipse(170, 352, 24, 12, PIKA) + ellipse(230, 352, 24, 12, PIKA) },
+      { bbbb: path('M262 300 L300 270 L282 250 L340 200 L318 186 L372 130 L320 150 L336 168 L284 210 L300 228 L256 262Z', PIKA) }
+    ]
+  };
+
+  /* Orden de la galería: personajes, animales, naturaleza, fiestas, fantasía y objetos/transportes */
   global.DRAWINGS = [
-    giraffe, dog, cat, bunny, pig, monkey, bear, leopard, rhino, dinosaur, penguin, owl,
+    peppa, george, bluey, bingo, hellokitty, pikachu, pocoyo, pandypaws, cakey,
+    giraffe, dog, cat, bunny, pig, monkey, bear, lion, elephant, panda, leopard, rhino, dinosaur, penguin, owl, frog,
     fish, dolphin, octopus, crab, starfish, shark, turtle, snake, snail,
     bee, ladybird, butterfly, spider, bat,
-    flower, island, rainbow, xmastree,
-    house, castle, car, motorbike, sailboat, rocket, robot, ghost, gnome, icecream
+    flower, island, rainbow,
+    xmastree, snowman, santa, olentzero, maridomingi, reindeer, pumpkin, cake,
+    unicorn, dragon, princess, mermaid, ghost, gnome,
+    house, castle, rollercoaster, car, firetruck, train, motorbike, sailboat, plane, balloon, rocket, astronaut, robot, icecream
   ];
 })(window);

@@ -6,11 +6,11 @@
 (function (global) {
   'use strict';
 
-  var LAYERS = ['bbb', 'bb', 'b', 'f'];
+  var LAYERS = ['bbbbb', 'bbbb', 'bbb', 'bb', 'b', 'f'];
   var SHAPES = 'path, circle, ellipse, rect, line, polyline, polygon';
 
   function render(drawing, upto, mode) {
-    var out = { bbb: '', bb: '', b: '', f: '' };
+    var out = { bbbbb: '', bbbb: '', bbb: '', bb: '', b: '', f: '' };
     var last = Math.min(upto, drawing.steps.length - 1);
     for (var i = 0; i <= last; i++) {
       var step = drawing.steps[i];
@@ -25,7 +25,7 @@
       'xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
       '<g class="art-root" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"' +
       (drawing.transform ? ' transform="' + drawing.transform + '"' : '') + '>' +
-      out.bbb + out.bb + out.b + out.f + '</g></svg>';
+      out.bbbbb + out.bbbb + out.bbb + out.bb + out.b + out.f + '</g></svg>';
   }
 
   /* Animación "se dibuja solo" del paso actual */

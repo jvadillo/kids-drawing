@@ -18,9 +18,10 @@
 <script src="../js/drawings.js"></script>
 <script src="../js/art.js"></script>
 <script>
-  // ?from=0&to=6 para paginar, o ?ids=dog,cat para ver solo algunos
+  // ?from=0&to=6 para paginar, o ?ids=dog,cat para ver solo algunos (&size=300 para verlos más grandes)
   var q = new URLSearchParams(location.search), from = +(q.get('from') || 0), to = +(q.get('to') || 99);
   var ids = q.get('ids') ? q.get('ids').split(',') : null;
+  if (q.get('size')) document.head.insertAdjacentHTML('beforeend', '<style>.cell{width:' + q.get('size') + 'px;height:' + q.get('size') + 'px}</style>');
   var list = ids ? DRAWINGS.filter(function (d) { return ids.indexOf(d.id) >= 0; }) : DRAWINGS.slice(from, to);
   var html = '';
   list.forEach(function (d) {
